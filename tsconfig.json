@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",                 // Target latest ECMAScript features
+    "module": "CommonJS",              // Use CommonJS module system for Node.js compatibility
+    "moduleResolution": "node",       // Module resolution strategy
+    "esModuleInterop": true,          // Enables better CommonJS and ESM interoperability
+    "strict": true,                   // Enables all strict type-checking options
+    "declaration": true,              // Generates .d.ts files for the package
+    "outDir": "./dist",               // Output directory for compiled files
+    "rootDir": "./src",               // Root directory of your source files
+    "removeComments": true,           // Removes comments from the output files
+    "forceConsistentCasingInFileNames": true, // Disallows inconsistently-cased references to the same file
+    "skipLibCheck": true,             // Skip type checking for all declaration files (*.d.ts)
+    "lib": ["ES2020", "DOM"],         // Include standard library files for ES2020 and DOM (for web-related types)
+    "types": ["node"],                // Include Node.js types
+    "resolveJsonModule": true,        // Allow importing .json files
+    "isolatedModules": true           // Ensure that each file can be safely transpiled without relying on other imports
+  },
+  "include": ["src/**/*.ts"],         // Include TypeScript source files
+  "exclude": ["node_modules"]         // Exclude node_modules
+}
