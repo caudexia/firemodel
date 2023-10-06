@@ -2,7 +2,7 @@
 node_modules/
 
 # Build output directory (as specified in tsconfig.json or other build tools)
-dist/
+# dist/
 
 # Logs
 logs/
