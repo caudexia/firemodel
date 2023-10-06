@@ -28,7 +28,7 @@ npm install firebase-admin
 
 ```typescript
 import { initializeApp, credential } from 'firebase-admin';
-import { initializeServer, createServerModel } from 'firemodel';
+import { useServerModel } from 'firemodel';
 
 // Initialize Firebase Admin SDK
 const serviceAccount = require('/path/to/serviceAccountKey.json');
@@ -38,6 +38,7 @@ initializeApp({
 });
 
 // Initialize firemodel with Firebase Admin SDK
+const { initializeServer } = useServerModel();
 initializeServer(admin);
 ```
 
@@ -50,7 +51,7 @@ npm install firebase
 ```typescript
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { initializeWeb, createWebModel } from 'firemodel';
+import { useWebModel } from 'firemodel';
 
 // Initialize Firebase Web SDK
 const firebaseConfig = {
@@ -66,16 +67,17 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // Initialize firemodel with Firebase Web SDK
+const { initializeWeb } = useWebModel();
 initializeWeb(db);
 ```
 
-#### Define a Model
+#### Define a Model (Web Example)
 
 Define your model and its schema:
 
 ```typescript
 import { z } from 'zod';
-import { createWebModel } from 'firemodel';
+import { useWebModel } from 'firemodel';
 
 const userSchema = z.object({
   id: z.string(),
@@ -85,12 +87,15 @@ const userSchema = z.object({
   isAdmin: z.boolean()
 });
 
+const { createWebModel } = useWebModel();
 const UserModel = createWebModel('users', userSchema);
 ```
 
-#### Do Stuff
+#### Do Stuff (Server Example)
 
 ```typescript
+import { useServerModel } from 'firemodel';
+
 // Define a User model
 const userSchema = z.object({
   id: z.string(),
@@ -100,6 +105,7 @@ const userSchema = z.object({
   isAdmin: z.boolean()
 });
 
+const { createServerModel } = useServerModel();
 const UserModel = createServerModel('users', userSchema);
 
 // Use the UserModel for CRUD operations
