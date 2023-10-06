@@ -1,5 +1,5 @@
 import { ZodSchema } from 'zod';
-import * as admin from 'firebase-admin';
+import { firestore } from 'firebase-admin';
 import { createModel } from './BaseModel';
 
 /**
@@ -12,7 +12,7 @@ import { createModel } from './BaseModel';
  */
 export function createServerModel<T>(collectionName: string, schema: ZodSchema<T>) {
   const baseModel = createModel(collectionName, schema);
-  const db = admin.firestore();
+  const db = firestore();
 
   return {
     ...baseModel,
