@@ -10,7 +10,7 @@ import { createModel } from './BaseModel';
  * @param {ZodSchema<T>} schema - The Zod schema for data validation.
  * @returns {ReturnType<typeof createModel<T>>} - The methods associated with the server model.
  */
-export function createServerModel<T>(collectionName: string, schema: ZodSchema<T>) {
+function createServerModel<T>(collectionName: string, schema: ZodSchema<T>) {
   const baseModel = createModel(collectionName, schema);
   const db = firestore();
 
@@ -80,3 +80,5 @@ export function createServerModel<T>(collectionName: string, schema: ZodSchema<T
     },
   };
 }
+
+export { createServerModel };

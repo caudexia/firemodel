@@ -6,6 +6,7 @@
     "esModuleInterop": true,          // Enables better CommonJS and ESM interoperability
     "strict": true,                   // Enables all strict type-checking options
     "declaration": true,              // Generates .d.ts files for the package
+    "declarationDir": "./dist/types",  // Output directory for type declarations
     "outDir": "./dist",               // Output directory for compiled files
     "rootDir": "./src",               // Root directory of your source files
     "removeComments": true,           // Removes comments from the output files

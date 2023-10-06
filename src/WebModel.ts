@@ -10,7 +10,7 @@ import { createModel } from './BaseModel';
  * @param {ZodSchema<T>} schema - The Zod schema for data validation.
  * @returns {ReturnType<typeof createModel<T>>} - The methods associated with the web model.
  */
-export function createWebModel<T>(collectionName: string, schema: ZodSchema<T>) {
+function createWebModel<T>(collectionName: string, schema: ZodSchema<T>) {
   const baseModel = createModel(collectionName, schema);
 
   return {
@@ -113,3 +113,5 @@ export function createWebModel<T>(collectionName: string, schema: ZodSchema<T>) 
     },
   };
 }
+
+export { createWebModel };
