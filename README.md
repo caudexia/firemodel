@@ -1,6 +1,7 @@
 # Firemodel
 
 A simple and efficient Object-Relational Mapping (ORM) for Firestore, designed to work seamlessly in both web and server environments.
+Requires Zod for data validation.
 
 ## Features
 
@@ -27,7 +28,7 @@ npm install firebase-admin
 
 ```typescript
 import { initializeApp, credential } from 'firebase-admin';
-import { initialize, createServerModel } from 'firemodel';
+import { initializeServer, createServerModel } from 'firemodel';
 
 // Initialize Firebase Admin SDK
 const serviceAccount = require('/path/to/serviceAccountKey.json');
@@ -37,7 +38,7 @@ initializeApp({
 });
 
 // Initialize firemodel with Firebase Admin SDK
-initialize(admin);
+initializeServer(admin);
 ```
 
 ### Web Initialization
@@ -49,7 +50,7 @@ npm install firebase
 ```typescript
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { initialize, createWebModel } from 'firemodel';
+import { initializeWeb, createWebModel } from 'firemodel';
 
 // Initialize Firebase Web SDK
 const firebaseConfig = {
@@ -65,7 +66,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // Initialize firemodel with Firebase Web SDK
-initialize(db);
+initializeWeb(db);
 ```
 
 #### Define a Model
