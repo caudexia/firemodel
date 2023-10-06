@@ -28,36 +28,26 @@ const BaseModel = __importStar(require("./BaseModel"));
 exports.BaseModel = BaseModel;
 let _Server;
 let _Web;
-if (typeof window === 'undefined') {
-    Promise.all([
-        Promise.resolve().then(() => __importStar(require('./ServerInit'))),
-        Promise.resolve().then(() => __importStar(require('./ServerModel')))
-    ]).then(([ServerInit, ServerModel]) => {
-        _Server = { ...ServerInit, ...ServerModel };
-    });
-}
-else {
-    Promise.all([
-        Promise.resolve().then(() => __importStar(require('./WebInit'))),
-        Promise.resolve().then(() => __importStar(require('./WebModel')))
-    ]).then(([WebInit, WebModel]) => {
-        _Web = { ...WebInit, ...WebModel };
-    });
-}
-const useServerModel = () => {
+const useServerModel = async () => {
     if (typeof window !== 'undefined') {
         throw new Error("Server functionality is not available in the client environment.");
     }
+    const ServerInit = await Promise.resolve().then(() => __importStar(require('./ServerInit')));
+    const ServerModel = await Promise.resolve().then(() => __importStar(require('./ServerModel')));
+    _Server = { ...ServerInit, ...ServerModel };
     if (!_Server) {
         throw new Error("Server functionality has not been initialized.");
     }
     return _Server;
 };
 exports.useServerModel = useServerModel;
-const useWebModel = () => {
+const useWebModel = async () => {
     if (typeof window === 'undefined') {
         throw new Error("Web functionality is not available in the server environment.");
     }
+    const WebInit = await Promise.resolve().then(() => __importStar(require('./WebInit')));
+    const WebModel = await Promise.resolve().then(() => __importStar(require('./WebModel')));
+    _Web = { ...WebInit, ...WebModel };
     if (!_Web) {
         throw new Error("Web functionality has not been initialized.");
     }

@@ -15,7 +15,7 @@ function createServerModel(collectionName, schema) {
         async add(data) {
             const validatedData = baseModel.validate(data);
             if (!validatedData) {
-                throw new Error("Validation failed for the provided data.");
+                throw new Error('firemodel: Validation failed for the provided data.');
             }
             const docRef = await db.collection(collectionName).add(validatedData);
             return docRef.id;
@@ -23,7 +23,7 @@ function createServerModel(collectionName, schema) {
         async update(id, data) {
             const validatedData = baseModel.validate(data);
             if (!validatedData) {
-                throw new Error("Validation failed for the provided data.");
+                throw new Error('firemodel: Validation failed for the provided data.');
             }
             await db.collection(collectionName).doc(id).update(validatedData);
         },

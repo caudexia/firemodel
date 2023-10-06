@@ -42,7 +42,7 @@ function createWebModel<T>(collectionName: string, schema: ZodSchema<T>) {
       const validatedData = baseModel.validate(data);
 
       if (!validatedData) {
-        throw new Error("Validation failed for the provided data.");
+        throw new Error('firemodel: Validation failed for the provided data.');
       }
 
       const docRef = await addDoc(collection(getFirestore(), collectionName), validatedData);
@@ -61,7 +61,7 @@ function createWebModel<T>(collectionName: string, schema: ZodSchema<T>) {
       const validatedData = baseModel.validate(data);
 
       if (!validatedData) {
-        throw new Error("Validation failed for the provided data.");
+        throw new Error('firemodel: Validation failed for the provided data.');
       }
 
       await updateDoc(doc(getFirestore(), collectionName, id), validatedData);
