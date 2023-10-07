@@ -1,3 +1,11 @@
+/**
+ * Creates a base model with common methods for data validation and manipulation.
+ *
+ * @template T - The type of the data model.
+ * @param {string} _collectionName - The name of the Firestore collection.
+ * @param {ZodSchema<T>} schema - The Zod schema for data validation.
+ * @returns {ModelMethods<T>} - The methods associated with the model.
+ */
 export function createModel(_collectionName, schema) {
     return {
         validate(data) {

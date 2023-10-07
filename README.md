@@ -1,7 +1,6 @@
 # Firemodel
 
-A simple and efficient Object-Relational Mapping (ORM) for Firestore, designed to work seamlessly in both web and server environments.
-Requires Zod for data validation.
+A simple and efficient Object-Relational Mapping (ORM) for Firestore, designed to work seamlessly in both web and server environments. Requires Zod for data validation and Firebase SDKs for database interactions.
 
 ## Features
 
@@ -12,8 +11,16 @@ Requires Zod for data validation.
 
 ## Installation
 
+Install the package and its required dependencies:
+
 ```bash
-npm install firemodel
+npm install firemodel firebase zod
+```
+
+For server-side usage, you'll also need:
+
+```bash
+npm install firebase-admin
 ```
 
 ## Usage
@@ -22,36 +29,42 @@ Before using the models, initialize the package with your Firebase credentials.
 
 ### Server Initialization
 
+Install the Firebase Admin SDK if you haven't:
+
 ```bash
 npm install firebase-admin
 ```
 
+Initialize Firemodel and Firebase Admin SDK:
+
 ```typescript
-import { initializeApp, credential } from 'firebase-admin';
-import { useServerModel } from 'firemodel';
+import { initializeServer } from 'firemodel/server';
+import admin from 'firebase-admin';
 
 // Initialize Firebase Admin SDK
 const serviceAccount = require('/path/to/serviceAccountKey.json');
-initializeApp({
-  credential: credential.cert(serviceAccount),
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
   databaseURL: 'https://YOUR_PROJECT_ID.firebaseio.com'
 });
 
-// Initialize firemodel with Firebase Admin SDK
-const { initializeServer } = useServerModel();
-initializeServer(admin);
+// Initialize Firemodel with Firebase Admin SDK
+initializeServer(serviceAccount, 'https://YOUR_PROJECT_ID.firebaseio.com');
 ```
 
 ### Web Initialization
+
+Install the Firebase Web SDK if you haven't:
 
 ```bash
 npm install firebase
 ```
 
+Initialize Firemodel and Firebase Web SDK:
+
 ```typescript
+import { initializeWeb } from 'firemodel/client';
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { useWebModel } from 'firemodel';
 
 // Initialize Firebase Web SDK
 const firebaseConfig = {
@@ -63,12 +76,10 @@ const firebaseConfig = {
   appId: "YOUR_APP_ID"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+initializeApp(firebaseConfig);
 
-// Initialize firemodel with Firebase Web SDK
-const { initializeWeb } = useWebModel();
-initializeWeb(db);
+// Initialize Firemodel with Firebase Web SDK
+initializeWeb(firebaseConfig);
 ```
 
 #### Define a Model (Web Example)
@@ -77,7 +88,7 @@ Define your model and its schema:
 
 ```typescript
 import { z } from 'zod';
-import { useWebModel } from 'firemodel';
+import { createWebModel } from 'firemodel/client';
 
 const userSchema = z.object({
   id: z.string(),
@@ -87,14 +98,14 @@ const userSchema = z.object({
   isAdmin: z.boolean()
 });
 
-const { createWebModel } = useWebModel();
 const UserModel = createWebModel('users', userSchema);
 ```
 
 #### Do Stuff (Server Example)
 
 ```typescript
-import { useServerModel } from 'firemodel';
+import { z } from 'zod';
+import { createServerModel } from 'firemodel/server';
 
 // Define a User model
 const userSchema = z.object({
@@ -105,7 +116,6 @@ const userSchema = z.object({
   isAdmin: z.boolean()
 });
 
-const { createServerModel } = useServerModel();
 const UserModel = createServerModel('users', userSchema);
 
 // Use the UserModel for CRUD operations
@@ -147,7 +157,7 @@ await UserModel.delete('123');
 
 ```typescript
 const unsubscribe = UserModel.subscribeToRealtimeUpdates((users) => {
-    console.log(users);
+  console.log(users);
 });
 
 // To stop listening to updates

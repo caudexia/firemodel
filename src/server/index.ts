@@ -1,6 +1,37 @@
 import { ZodSchema } from 'zod';
-import { firestore } from 'firebase-admin';
-import { createModel } from './BaseModel';
+import admin from 'firebase-admin';
+import { createModel } from '../BaseModel';
+
+let firestoreInstance: ReturnType<typeof admin.firestore> | null = null;
+
+/**
+ * Gets the initialized Firestore instance for server.
+ * 
+ * @returns {ReturnType<typeof firestore>} - The Firestore instance for server.
+ * @throws {Error} - Throws an error if the firemodel has not been initialized.
+ */
+export const getFirestoreInstanceServer = (): ReturnType<typeof admin.firestore> => {
+  if (!firestoreInstance) {
+    throw new Error('firemodel has not been initialized. Please call the initializeServer function first.');
+  }
+
+  return firestoreInstance;
+};
+
+/**
+ * Initializes the firemodel package with the given Firebase Admin SDK credentials for server.
+ * 
+ * @param {admin.ServiceAccount} config - Firebase Admin SDK credentials.
+ * @param {string} databaseURL - Database URL for Firebase Admin SDK.
+ */
+export const initializeServer = (config: admin.ServiceAccount, databaseURL: string): void => {
+  admin.initializeApp({
+    credential: admin.credential.cert(config),
+    databaseURL: databaseURL
+  });
+
+  firestoreInstance = admin.firestore();
+};
 
 /**
  * Creates a server model with methods tailored for the Firebase Admin SDK.
@@ -10,9 +41,9 @@ import { createModel } from './BaseModel';
  * @param {ZodSchema<T>} schema - The Zod schema for data validation.
  * @returns {ReturnType<typeof createModel<T>>} - The methods associated with the server model.
  */
-function createServerModel<T>(collectionName: string, schema: ZodSchema<T>) {
+export const createServerModel = <T>(collectionName: string, schema: ZodSchema<T>) => {
   const baseModel = createModel(collectionName, schema);
-  const db = firestore();
+  const db = admin.firestore();
 
   return {
     ...baseModel,
@@ -27,7 +58,7 @@ function createServerModel<T>(collectionName: string, schema: ZodSchema<T>) {
       const docSnap = await db.collection(collectionName).doc(id).get();
 
       if (docSnap.exists) {
-        return baseModel.validate(docSnap.data() as T);
+        return baseModel.validate(docSnap.data());
       }
 
       return undefined;
@@ -65,7 +96,8 @@ function createServerModel<T>(collectionName: string, schema: ZodSchema<T>) {
         throw new Error('firemodel: Validation failed for the provided data.');
       }
 
-      await db.collection(collectionName).doc(id).update(validatedData);
+      // https://github.com/googleapis/nodejs-firestore/issues/1745
+      await db.collection(collectionName).doc(id).update(validatedData as any);
     },
 
     /**
@@ -79,6 +111,4 @@ function createServerModel<T>(collectionName: string, schema: ZodSchema<T>) {
       await db.collection(collectionName).doc(id).delete();
     },
   };
-}
-
-export { createServerModel };
+};

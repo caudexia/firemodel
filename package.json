@@ -2,30 +2,26 @@
   "name": "firemodel",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/cjs/index.js",
-  "types": "./dist/types/index.d.ts",
-  "scripts": {
-    "build:cjs": "tsc --module CommonJS --outDir ./dist/cjs",
-    "build:esm": "tsc --module ES2020 --outDir ./dist/esm",
-    "build": "npm run build:cjs && npm run build:esm",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "exports": {
-    ".": {
-      "require": "./dist/cjs/index.js",
-      "import": "./dist/esm/index.js"
-    },
-    "./package.json": "./package.json"
-  },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
+  "main": "dist/server/index.js",
+  "exports": {
+    "./server": "./dist/server/index.js",
+    "./client": "./dist/client/index.js"
+  },
+  "scripts": {
+    "build:server": "tsc -p tsconfig.server.json",
+    "build:client": "tsc -p tsconfig.client.json",
+    "build": "npm run build:server && npm run build:client"
+  },
   "dependencies": {
     "firebase": "^10.4.0",
     "firebase-admin": "^11.11.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/firebase": "^3.2.1",
     "@types/node": "^20.8.2",
     "typescript": "^5.2.2"
   }

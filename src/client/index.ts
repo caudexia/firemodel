@@ -1,6 +1,53 @@
+import firebase from 'firebase/app';
+import 'firebase/firestore';
 import { ZodSchema } from 'zod';
-import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, deleteDoc, query as firestoreQuery, onSnapshot } from 'firebase/firestore';
-import { createModel } from './BaseModel';
+import { createModel } from '../BaseModel';
+import {
+  getDoc,
+  doc,
+  getFirestore,
+  addDoc,
+  collection,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+  Query,
+} from 'firebase/firestore';
+
+interface FirebaseConfig {
+  apiKey: string;
+  authDomain: string;
+  projectId: string;
+  storageBucket: string;
+  messagingSenderId: string;
+  appId: string;
+  measurementId?: string;
+}
+
+/**
+ * Initializes the firemodel package with the given Firestore instance for web.
+ * 
+ * @param {FirebaseConfig} config - Firestore config for web.
+ */
+export const initializeWeb = (config: FirebaseConfig) => {
+  // Initialize Firebase
+  if (!firebase.getApps().length) {
+    firebase.initializeApp(config);
+  } else {
+    firebase.getApp();
+  }
+
+  // Initialize Firestore
+  const firestore = getFirestore();
+
+  // You can add more configurations here, such as enabling offline support
+  // firestore.enablePersistence()
+  //   .catch((err) => {
+  //     console.error("Firestore persistence error:", err);
+  //   });
+
+  return firestore;
+};
 
 /**
  * Creates a web model with methods tailored for the Firebase Web SDK.
@@ -10,7 +57,7 @@ import { createModel } from './BaseModel';
  * @param {ZodSchema<T>} schema - The Zod schema for data validation.
  * @returns {ReturnType<typeof createModel<T>>} - The methods associated with the web model.
  */
-function createWebModel<T>(collectionName: string, schema: ZodSchema<T>) {
+export const createWebModel = <T>(collectionName: string, schema: ZodSchema<T>) => {
   const baseModel = createModel(collectionName, schema);
 
   return {
@@ -23,13 +70,13 @@ function createWebModel<T>(collectionName: string, schema: ZodSchema<T>) {
      * @returns {Promise<T | undefined>} - The fetched document or undefined if not found.
      */
     async get(id: string): Promise<T | undefined> {
-        const docSnap = await getDoc(doc(getFirestore(), collectionName, id));
+      const docSnap = await getDoc(doc(getFirestore(), collectionName, id));
 
-        if (docSnap.exists()) {
-          return baseModel.validate(docSnap.data() as T);
-        }
+      if (docSnap.exists()) {
+        return baseModel.validate(docSnap.data() as T);
+      }
 
-        return undefined;
+      return undefined;
     },
 
     /**
@@ -64,7 +111,8 @@ function createWebModel<T>(collectionName: string, schema: ZodSchema<T>) {
         throw new Error('firemodel: Validation failed for the provided data.');
       }
 
-      await updateDoc(doc(getFirestore(), collectionName, id), validatedData);
+      // https://github.com/googleapis/nodejs-firestore/issues/1745
+      await updateDoc(doc(getFirestore(), collectionName, id), validatedData as any);
     },
 
     /**
@@ -83,16 +131,16 @@ function createWebModel<T>(collectionName: string, schema: ZodSchema<T>) {
      * the provided callback is invoked with the updated set of documents.
      * 
      * @param {function(T[]): void} callback - The function to call with the updated documents.
-     * @param {function(query: ReturnType<typeof firestoreQuery>): ReturnType<typeof firestoreQuery>} [queryFn] - 
+     * @param {function(query: typeof Query): typeof Query} [queryFn] - 
      *        An optional function to modify or filter the base query.
      * @returns {function(): void} - A function to unsubscribe from the real-time updates.
      * @throws {Error} - Throws an error if issues arise during the subscription.
      */
     subscribeToRealtimeUpdates(
-        callback: (items: T[]) => void,
-        queryFn?: (query: ReturnType<typeof firestoreQuery>) => ReturnType<typeof firestoreQuery>
+      callback: (items: T[]) => void,
+      queryFn?: (query: Query) => Query,
     ) {
-      let baseQuery: ReturnType<typeof firestoreQuery> = collection(getFirestore(), collectionName);
+      let baseQuery: Query = collection(getFirestore(), collectionName);
 
       if (queryFn) {
         baseQuery = queryFn(baseQuery);
@@ -112,6 +160,4 @@ function createWebModel<T>(collectionName: string, schema: ZodSchema<T>) {
       });
     },
   };
-}
-
-export { createWebModel };
+};
