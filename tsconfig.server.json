@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "./dist/server",
+    "outDir": "./dist",
     "module": "CommonJS",
     "target": "ES2020",
     "esModuleInterop": true,         // Enables CommonJS/AMD/UMD module imports

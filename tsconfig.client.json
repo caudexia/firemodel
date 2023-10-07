@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "./dist/client",
+    "outDir": "./dist",
     "module": "ESNext",
     "target": "ES2020",
     "esModuleInterop": true,         // Enables CommonJS/AMD/UMD module imports
