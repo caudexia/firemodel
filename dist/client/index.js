@@ -1,4 +1,4 @@
-import firebase from 'firebase/app';
+import * as firebase from 'firebase/app';
 import 'firebase/firestore';
 import { createModel } from '../BaseModel';
 import { getDoc, doc, getFirestore, addDoc, collection, updateDoc, deleteDoc, onSnapshot, } from 'firebase/firestore';
