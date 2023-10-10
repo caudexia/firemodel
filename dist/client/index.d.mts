@@ -12,6 +12,11 @@ interface FirebaseConfig {
     appId: string;
     measurementId?: string;
 }
+interface DocUpdate {
+    id: string;
+    data: Record<number | string | symbol, any>;
+    exists: boolean;
+}
 /**
  * Initializes the firemodel package with the given Firestore instance for web.
  *
@@ -62,14 +67,16 @@ declare const createWebModel: <T>(collectionName: string, schema: ZodSchema<T, z
      * Subscribes to real-time updates for the collection. Whenever data in the collection changes,
      * the provided callback is invoked with the updated set of documents.
      *
-     * @param {function(T[]): void} callback - The function to call with the updated documents.
+     * @param {function(Array<{ data: T } & DocUpdate>): void} callback - The function to call with the updated documents.
      * @param {function(query: typeof Query): typeof Query} [queryFn] -
      *        An optional function to modify or filter the base query.
      * @returns {function(): void} - A function to unsubscribe from the real-time updates.
      * @throws {Error} - Throws an error if issues arise during the subscription.
      */
-    subscribeToRealtimeUpdates(callback: (items: T[]) => void, queryFn?: ((query: Query) => Query) | undefined): _firebase_firestore.Unsubscribe;
+    subscribeToRealtimeUpdates(callback: (items: ({
+        data: T;
+    } & DocUpdate)[]) => void, queryFn?: ((query: Query) => Query) | undefined): _firebase_firestore.Unsubscribe;
     validate: (data: any) => T | undefined;
 };
 
-export { createWebModel, initializeWeb };
+export { DocUpdate, createWebModel, initializeWeb };

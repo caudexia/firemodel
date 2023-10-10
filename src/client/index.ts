@@ -24,6 +24,12 @@ interface FirebaseConfig {
   measurementId?: string;
 }
 
+export interface DocUpdate {
+  id: string;
+  data: Record<number | string | symbol, any>;
+  exists: boolean;
+};
+
 /**
  * Initializes the firemodel package with the given Firestore instance for web.
  * 
@@ -130,14 +136,14 @@ export const createWebModel = <T>(collectionName: string, schema: ZodSchema<T>) 
      * Subscribes to real-time updates for the collection. Whenever data in the collection changes,
      * the provided callback is invoked with the updated set of documents.
      * 
-     * @param {function(T[]): void} callback - The function to call with the updated documents.
+     * @param {function(Array<{ data: T } & DocUpdate>): void} callback - The function to call with the updated documents.
      * @param {function(query: typeof Query): typeof Query} [queryFn] - 
      *        An optional function to modify or filter the base query.
      * @returns {function(): void} - A function to unsubscribe from the real-time updates.
      * @throws {Error} - Throws an error if issues arise during the subscription.
      */
     subscribeToRealtimeUpdates(
-      callback: (items: T[]) => void,
+      callback: (items: Array<{ data: T } & DocUpdate>) => void,
       queryFn?: (query: Query) => Query,
     ) {
       let baseQuery: Query = collection(getFirestore(), collectionName);
@@ -147,15 +153,21 @@ export const createWebModel = <T>(collectionName: string, schema: ZodSchema<T>) 
       }
 
       return onSnapshot(baseQuery, snapshot => {
-        const items: T[] = [];
+        const items: Array<{ data: T } & DocUpdate> = [];
+
         snapshot.forEach(docSnap => {
           const data = docSnap.data();
           const validatedData = baseModel.validate(data);
 
           if (validatedData) {
-            items.push(validatedData);
+            items.push({
+              id: docSnap.id,
+              data: validatedData,
+              exists: docSnap.exists(),
+            });
           }
         });
+
         callback(items);
       });
     },
