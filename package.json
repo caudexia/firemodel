@@ -7,13 +7,19 @@
   "license": "MIT",
   "main": "dist/server/index.js",
   "exports": {
-    "./server": "./dist/server/index.js",
-    "./client": "./dist/client/index.js"
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "require": "./dist/server/index.js",
+      "import": "./dist/server/index.mjs"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "require": "./dist/client/index.js",
+      "import": "./dist/client/index.mjs"
+    }
   },
   "scripts": {
-    "build:server": "tsc -p tsconfig.server.json",
-    "build:client": "tsc -p tsconfig.client.json",
-    "build": "npm run build:server && npm run build:client"
+    "build": "tsup"
   },
   "dependencies": {
     "firebase": "^10.4.0",
@@ -23,6 +29,7 @@
   "devDependencies": {
     "@types/firebase": "^3.2.1",
     "@types/node": "^20.8.2",
+    "tsup": "^7.2.0",
     "typescript": "^5.2.2"
   }
 }

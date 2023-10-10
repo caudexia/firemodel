@@ -2,13 +2,13 @@
   "compilerOptions": {
     "target": "ES2020",              // Specify ECMAScript target version
     "module": "CommonJS",            // Specify module code generation
+    "moduleResolution": "node",       // Module resolution strategy
     "outDir": "./dist",              // Output directory for compiled files
     "rootDir": "./src",              // Root directory of source files
     "strict": true,                  // Enable strict type checking
     "esModuleInterop": true,         // Enables CommonJS/AMD/UMD module imports
     "skipLibCheck": true,            // Skip type checking for declaration files in node_modules
-    "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased references to the same file
-    "moduleResolution": "node"       // Module resolution strategy
+    "forceConsistentCasingInFileNames": true // Disallow inconsistently-cased references to the same file
   },
   "include": [
     "src/**/*.ts"                    // Files to be included in compilation
