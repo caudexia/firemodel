@@ -1,6 +1,6 @@
 import * as firebase from 'firebase/app';
 import 'firebase/firestore';
-import { ZodSchema } from 'zod';
+import { ZodSchema, ZodTypeDef } from 'zod';
 import { createModel } from '../BaseModel';
 import {
   getDoc,
@@ -58,12 +58,13 @@ export const initializeWeb = (config: FirebaseConfig) => {
 /**
  * Creates a web model with methods tailored for the Firebase Web SDK.
  * 
- * @template T - The type of the data model.
+ * @template IInput - The type of the data model used for input (to be validated).
+ * @template IOutput - The type of the data model used for output (to be returned).
  * @param {string} collectionName - The name of the Firestore collection.
- * @param {ZodSchema<T>} schema - The Zod schema for data validation.
- * @returns {ReturnType<typeof createModel<T>>} - The methods associated with the web model.
+ * @param {ZodSchema<IOutput, ZodTypeDef, IInput>} schema - The Zod schema for data validation.
+ * @returns {ReturnType<typeof createModel<IInput, IOutput>>} - The methods associated with the web model.
  */
-export const createWebModel = <T>(collectionName: string, schema: ZodSchema<T>) => {
+export const createWebModel = <IInput, IOutput>(collectionName: string, schema: ZodSchema<IOutput, ZodTypeDef, IInput>) => {
   const baseModel = createModel(collectionName, schema);
 
   return {
@@ -73,13 +74,13 @@ export const createWebModel = <T>(collectionName: string, schema: ZodSchema<T>) 
      * Fetches a document by its ID.
      * 
      * @param {string} id - The ID of the document to fetch.
-     * @returns {Promise<T | undefined>} - The fetched document or undefined if not found.
+     * @returns {Promise<IOutput | undefined>} - The fetched document or undefined if not found.
      */
-    async get(id: string): Promise<T | undefined> {
+    async get(id: string): Promise<IOutput | undefined> {
       const docSnap = await getDoc(doc(getFirestore(), collectionName, id));
 
       if (docSnap.exists()) {
-        return baseModel.validate(docSnap.data() as T);
+        return baseModel.validate(docSnap.data() as IInput);
       }
 
       return undefined;
@@ -88,10 +89,10 @@ export const createWebModel = <T>(collectionName: string, schema: ZodSchema<T>) 
     /**
      * Adds a new document to the collection.
      * 
-     * @param {T} data - The data of the document to add.
+     * @param {IInput} data - The data of the document to add.
      * @returns {Promise<string>} - The ID of the added document.
      */
-    async add(data: T): Promise<string> {
+    async add(data: IInput): Promise<string> {
       const validatedData = baseModel.validate(data);
 
       if (!validatedData) {
@@ -106,11 +107,11 @@ export const createWebModel = <T>(collectionName: string, schema: ZodSchema<T>) 
      * Updates an existing document in the collection.
      * 
      * @param {string} id - The ID of the document to update.
-     * @param {Partial<T>} data - The data to update in the document.
+     * @param {Partial<IInput>} data - The data to update in the document.
      * @returns {Promise<void>} - Resolves when the update is successful.
      * @throws {Error} - Throws an error if validation fails or if other issues arise during the update.
      */
-    async update(id: string, data: Partial<T>): Promise<void> {
+    async update(id: string, data: Partial<IInput>): Promise<void> {
       const validatedData = baseModel.validate(data);
 
       if (!validatedData) {
@@ -136,14 +137,14 @@ export const createWebModel = <T>(collectionName: string, schema: ZodSchema<T>) 
      * Subscribes to real-time updates for the collection. Whenever data in the collection changes,
      * the provided callback is invoked with the updated set of documents.
      * 
-     * @param {function(Array<{ data: T } & DocUpdate>): void} callback - The function to call with the updated documents.
+     * @param {function(Array<{ data: IOutput } & DocUpdate>): void} callback - The function to call with the updated documents.
      * @param {function(query: typeof Query): typeof Query} [queryFn] - 
      *        An optional function to modify or filter the base query.
      * @returns {function(): void} - A function to unsubscribe from the real-time updates.
      * @throws {Error} - Throws an error if issues arise during the subscription.
      */
     subscribeToRealtimeUpdates(
-      callback: (items: Array<{ data: T } & DocUpdate>) => void,
+      callback: (items: Array<{ data: IOutput } & DocUpdate>) => void,
       queryFn?: (query: Query) => Query,
     ) {
       let baseQuery: Query = collection(getFirestore(), collectionName);
@@ -153,11 +154,11 @@ export const createWebModel = <T>(collectionName: string, schema: ZodSchema<T>) 
       }
 
       return onSnapshot(baseQuery, snapshot => {
-        const items: Array<{ data: T } & DocUpdate> = [];
+        const items: Array<{ data: IOutput } & DocUpdate> = [];
 
         snapshot.forEach(docSnap => {
           const data = docSnap.data();
-          const validatedData = baseModel.validate(data);
+          const validatedData = baseModel.validate(data as IInput);
 
           if (validatedData) {
             items.push({

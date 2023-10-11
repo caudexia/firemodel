@@ -1,4 +1,4 @@
-import { ZodSchema } from 'zod';
+import { ZodSchema, ZodTypeDef } from 'zod';
 import admin from 'firebase-admin';
 import { createModel } from '../BaseModel';
 
@@ -36,12 +36,13 @@ export const initializeServer = (config: admin.ServiceAccount, databaseURL: stri
 /**
  * Creates a server model with methods tailored for the Firebase Admin SDK.
  * 
- * @template T - The type of the data model.
+ * @template IInput - The type of the data model used for input (to be validated).
+ * @template IOutput - The type of the data model used for output (to be returned).
  * @param {string} collectionName - The name of the Firestore collection.
- * @param {ZodSchema<T>} schema - The Zod schema for data validation.
- * @returns {ReturnType<typeof createModel<T>>} - The methods associated with the server model.
+ * @param {ZodSchema<IOutput, ZodTypeDef, IInput>} schema - The Zod schema for data validation.
+ * @returns {ReturnType<typeof createModel<IInput, IOutput>>} - The methods associated with the web model.
  */
-export const createServerModel = <T>(collectionName: string, schema: ZodSchema<T>) => {
+export const createServerModel = <IInput, IOutput>(collectionName: string, schema: ZodSchema<IOutput, ZodTypeDef, IInput>) => {
   const baseModel = createModel(collectionName, schema);
   const db = admin.firestore();
 
@@ -52,13 +53,13 @@ export const createServerModel = <T>(collectionName: string, schema: ZodSchema<T
      * Fetches a document by its ID.
      * 
      * @param {string} id - The ID of the document to fetch.
-     * @returns {Promise<T | undefined>} - The fetched document or undefined if not found.
+     * @returns {Promise<IOutput | undefined>} - The fetched document or undefined if not found.
      */
-    async get(id: string): Promise<T | undefined> {
+    async get(id: string): Promise<IOutput | undefined> {
       const docSnap = await db.collection(collectionName).doc(id).get();
 
       if (docSnap.exists) {
-        return baseModel.validate(docSnap.data());
+        return baseModel.validate(docSnap.data() as IInput);
       }
 
       return undefined;
@@ -67,10 +68,10 @@ export const createServerModel = <T>(collectionName: string, schema: ZodSchema<T
     /**
      * Adds a new document to the collection.
      * 
-     * @param {T} data - The data of the document to add.
+     * @param {IInput} data - The data of the document to add.
      * @returns {Promise<string>} - The ID of the added document.
      */
-    async add(data: T): Promise<string> {
+    async add(data: IInput): Promise<string> {
       const validatedData = baseModel.validate(data);
 
       if (!validatedData) {
@@ -85,11 +86,11 @@ export const createServerModel = <T>(collectionName: string, schema: ZodSchema<T
      * Updates an existing document in the collection.
      * 
      * @param {string} id - The ID of the document to update.
-     * @param {Partial<T>} data - The data to update in the document.
+     * @param {Partial<IInput>} data - The data to update in the document.
      * @returns {Promise<void>} - Resolves when the update is successful.
      * @throws {Error} - Throws an error if validation fails or if other issues arise during the update.
      */
-    async update(id: string, data: Partial<T>): Promise<void> {
+    async update(id: string, data: Partial<IInput>): Promise<void> {
       const validatedData = baseModel.validate(data);
 
       if (!validatedData) {
