@@ -20,11 +20,7 @@ interface ModelMethods<IInput, IOutput> {
 export function createModel<IInput, IOutput>(_collectionName: string, schema: ZodSchema<IOutput, ZodTypeDef, IInput>): ModelMethods<IInput, IOutput> {
   return {
     validate(data: Partial<IInput>): IOutput | undefined {
-      try {
-        return schema.parse(data);
-      } catch (error) {
-        return undefined;
-      }
+      return schema.parse(data);
     },
     async get(_id: string): Promise<IOutput | undefined> {
       throw new Error("Method not implemented.");

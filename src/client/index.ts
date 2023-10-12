@@ -12,6 +12,7 @@ import {
   deleteDoc,
   onSnapshot,
   Query,
+  Unsubscribe,
 } from 'firebase/firestore';
 
 interface FirebaseConfig {
@@ -138,25 +139,24 @@ export const createWebModel = <IInput, IOutput>(collectionName: string, schema: 
      * the provided callback is invoked with the updated set of documents.
      * 
      * @param {function(Array<{ data: IOutput } & DocUpdate>): void} callback - The function to call with the updated documents.
-     * @param {function(query: typeof Query): typeof Query} [queryFn] - 
-     *        An optional function to modify or filter the base query.
-     * @returns {function(): void} - A function to unsubscribe from the real-time updates.
+     * @param ?{function(query: Query): Query} queryFn - An optional function to modify or filter the base query.
+     * @returns {Unsubscribe} - A function to unsubscribe from the real-time updates.
      * @throws {Error} - Throws an error if issues arise during the subscription.
      */
     subscribeToRealtimeUpdates(
       callback: (items: Array<{ data: IOutput } & DocUpdate>) => void,
       queryFn?: (query: Query) => Query,
-    ) {
+    ): Unsubscribe {
       let baseQuery: Query = collection(getFirestore(), collectionName);
 
-      if (queryFn) {
+      if (typeof queryFn === 'function') {
         baseQuery = queryFn(baseQuery);
       }
 
-      return onSnapshot(baseQuery, snapshot => {
+      return onSnapshot(baseQuery, (snapshot) => {
         const items: Array<{ data: IOutput } & DocUpdate> = [];
 
-        snapshot.forEach(docSnap => {
+        snapshot.forEach((docSnap) => {
           const data = docSnap.data();
           const validatedData = baseModel.validate(data as IInput);
 

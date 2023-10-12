@@ -1,5 +1,5 @@
 import * as _firebase_firestore from '@firebase/firestore';
-import { Query } from 'firebase/firestore';
+import { Query, Unsubscribe } from 'firebase/firestore';
 import { ZodSchema, ZodTypeDef } from 'zod';
 
 interface FirebaseConfig {
@@ -68,14 +68,13 @@ declare const createWebModel: <IInput, IOutput>(collectionName: string, schema: 
      * the provided callback is invoked with the updated set of documents.
      *
      * @param {function(Array<{ data: IOutput } & DocUpdate>): void} callback - The function to call with the updated documents.
-     * @param {function(query: typeof Query): typeof Query} [queryFn] -
-     *        An optional function to modify or filter the base query.
-     * @returns {function(): void} - A function to unsubscribe from the real-time updates.
+     * @param ?{function(query: Query): Query} queryFn - An optional function to modify or filter the base query.
+     * @returns {Unsubscribe} - A function to unsubscribe from the real-time updates.
      * @throws {Error} - Throws an error if issues arise during the subscription.
      */
     subscribeToRealtimeUpdates(callback: (items: ({
         data: IOutput;
-    } & DocUpdate)[]) => void, queryFn?: ((query: Query) => Query) | undefined): _firebase_firestore.Unsubscribe;
+    } & DocUpdate)[]) => void, queryFn?: ((query: Query) => Query) | undefined): Unsubscribe;
     validate: (data: Partial<IInput>) => IOutput | undefined;
 };
 
