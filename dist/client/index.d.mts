@@ -70,7 +70,7 @@ declare const createWebModel: <IInput, IOutput>(collectionName: string, schema: 
      * @param {function(Array<{ data: IOutput } & DocUpdate>): void} callback - The function to call with the updated documents.
      * @param ?{function(query: Query): Query} queryFn - An optional function to modify or filter the base query.
      * @returns {Unsubscribe} - A function to unsubscribe from the real-time updates.
-     * @throws {Error} - Throws an error if issues arise during the subscription.
+     * @throws {Error} - Throws an error if issues arise during the subscription or parsing of data.
      */
     subscribeToRealtimeUpdates(callback: (items: ({
         data: IOutput;
